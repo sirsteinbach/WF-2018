@@ -16,11 +16,11 @@ var env,
 
 env = process.env.NODE_ENV || 'development';
 
-if (env==='development'{
+if (env==='development'){
   outputDir='builds/development/';
 } else {
   outputDir='builds/production/';
-})
+}
 
 coffeeSources = ['components/coffee/tagline.coffee'];
 jsSources = [
