@@ -9,6 +9,7 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     minifyHTML = require('gulp-minify-html'),
     jsonMinify = require('gulp-jsonminify'),
+    imagemin = require('gulp-imagemin'),
     concat = require('gulp-concat');
 
 var env,
@@ -52,7 +53,7 @@ gulp.task('js', function() {
   gulp.src(jsSources)
   .pipe(concat('script.js'))
   .pipe(browserify())
-  .pipe(gulpif(env==='production', uglify().on('error', console.log)))
+  .pipe(gulpif(env==='production', uglify()))
   .pipe(gulp.dest(outputDir + '_js'))
   .pipe(connect.reload())
 });
@@ -102,6 +103,17 @@ gulp.task('html', function(){
 
 gulp.task('images', function(){
   gulp.src('builds/development/_img/**/*.*')
+  .pipe(gulpif(env==='production', imagemin([
+    imagemin.gifsicle({interlaced: true}),
+    imagemin.jpegtran({progressive: true}),
+    imagemin.optipng({optimizationLevel: 5}),
+    imagemin.svgo({
+        plugins: [
+            {removeViewBox: true},
+            {cleanupIDs: false}
+        ]
+    })
+  ])))
   .pipe(gulpif(env==='production', gulp.dest(outputDir + '_img')))
   .pipe(connect.reload())
 })
