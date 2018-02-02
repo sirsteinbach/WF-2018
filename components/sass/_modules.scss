@@ -1,7 +1,7 @@
 // _modules.scss
 // ============
 .city {
-  @include backImage('../images/backgrounds/seattle_skyline.jpg');
+  @include backImage('../_img/backgrounds/seattle_skyline.jpg');
   img.logo {
     position: absolute;
     right: 0;
