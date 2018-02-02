@@ -12,14 +12,17 @@ var env,
     sassSources,
     htmlSources,
     jsonSources,
-    outputDir;
+    outputDir,
+    sassStyle;
 
 env = process.env.NODE_ENV || 'development';
 
 if (env==='development'){
   outputDir='builds/development/';
+  sassStyle='expanded';
 } else {
   outputDir='builds/production/';
+  sassStyle='compressed';
 }
 
 coffeeSources = ['components/coffee/tagline.coffee'];
@@ -54,7 +57,7 @@ gulp.task('compass', function() {
     css: outputDir + '_css', //voided the need for the .dest
     sass: 'components/sass',
     image: outputDir + '_img',
-    style: 'expanded'
+    style: sassStyle
   })
   .on('error', console.log))
   // .pipe(gulp.dest(outputDir + '_css'))
