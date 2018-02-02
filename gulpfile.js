@@ -4,14 +4,19 @@ var gulp = require('gulp'),
     browserify = require('gulp-browserify'),
     compass = require('gulp-compass'),
     connect = require('gulp-connect'),
+    gulpif = require('gulp-if'),
+    uglify = require('gulp-uglify'),
+    uglify = require('gulp-uglify'),
+    minifyHTML = require('gulp-minify-html'),
+    jsonMinify = require('gulp-jsonminify'),
     concat = require('gulp-concat');
 
 var env,
     coffeeSources,
     jsSources,
     sassSources,
-    htmlSources,
-    jsonSources,
+    // htmlSources,
+    // jsonSources,
     outputDir,
     sassStyle;
 
@@ -33,8 +38,8 @@ jsSources = [
   'components/scripts/template.js'
 ];
 sassSources = ['components/sass/style/scss'];
-htmlSources = [outputDir + '*.html'];
-jsonSources = [outputDir + '_js/*.json'];
+// htmlSources = [outputDir + '*.html'];
+// jsonSources = [outputDir + '_js/*.json'];
 
 gulp.task('coffee', function() {
   gulp.src(coffeeSources)
@@ -47,6 +52,7 @@ gulp.task('js', function() {
   gulp.src(jsSources)
   .pipe(concat('script.js'))
   .pipe(browserify())
+  .pipe(gulpif(env==='production', uglify().on('error', console.log)))
   .pipe(gulp.dest(outputDir + '_js'))
   .pipe(connect.reload())
 });
@@ -68,8 +74,9 @@ gulp.task('watch', function(){
     gulp.watch(coffeeSources, ['coffee']);
     gulp.watch(jsSources, ['js']);
     gulp.watch('components/sass/*.scss', ['compass']);
-    gulp.watch(htmlSources, ['html']);
-    gulp.watch(jsonSources, ['json']);
+    gulp.watch('builds/development/*.html', ['html']);
+    gulp.watch('builds/development/_js/*.json', ['json']);
+    gulp.watch('builds/development/_img/**/*.*', ['images']);
 });
 
 gulp.task('connect', function(){
@@ -80,13 +87,23 @@ gulp.task('connect', function(){
 })
 
 gulp.task('json', function(){
-  gulp.src(jsonSources)
+  gulp.src('builds/development/_js/*.json')
+  .pipe(gulpif(env==='production', jsonMinify()))
+  .pipe(gulpif(env==='production', gulp.dest('builds/production/_js')))
   .pipe(connect.reload())
 })
 
 gulp.task('html', function(){
-  gulp.src(htmlSources)
+  gulp.src('builds/development/*.html')
+  .pipe(gulpif(env==='production', minifyHTML()))
+  .pipe(gulpif(env==='production', gulp.dest(outputDir)))
   .pipe(connect.reload())
 })
 
-gulp.task('default', ['html', 'json', 'coffee', 'js', 'compass', 'connect', 'watch']);
+gulp.task('images', function(){
+  gulp.src('builds/development/_img/**/*.*')
+  .pipe(gulpif(env==='production', gulp.dest(outputDir + '_img')))
+  .pipe(connect.reload())
+})
+
+gulp.task('default', ['html', 'json', 'coffee', 'js', 'compass', 'images', 'connect', 'watch']);
